@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "KasirPro - Aplikasi Toko & Kasir Modern",
+  "short_name": "KasirPro",
+  "description": "Aplikasi Toko dan Kasir (POS) pintar multi-cabang dengan dukungan multi-pembayaran, manajemen stok, pelanggan & loyalitas, laporan keuangan, dan PWA.",
+  "theme_color": "#0284c7",
+  "background_color": "#f8fafc",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

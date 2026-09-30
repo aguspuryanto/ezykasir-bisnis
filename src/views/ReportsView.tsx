@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Transaction, Outlet, DateFilterType, StoreSettings } from '../types';
+import { Transaction, Outlet, DateFilterType, StoreSettings, Product } from '../types';
 import { formatRupiah, formatDateTimeIndonesian } from '../utils/storage';
+import { FinancialChatbot, FinancialSummaryData } from '../components/FinancialChatbot';
 import { 
   BarChart3, 
   Calendar, 
@@ -14,7 +15,9 @@ import {
   Search,
   Building2,
   PieChart,
-  ArrowUpRight
+  ArrowUpRight,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 
 interface ReportsViewProps {
@@ -23,6 +26,7 @@ interface ReportsViewProps {
   activeOutlet: Outlet;
   settings: StoreSettings;
   onViewReceipt: (tx: Transaction) => void;
+  products?: Product[];
 }
 
 export const ReportsView: React.FC<ReportsViewProps> = ({
@@ -31,6 +35,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   activeOutlet,
   settings,
   onViewReceipt,
+  products = [],
 }) => {
   const [dateFilter, setDateFilter] = useState<DateFilterType>('today');
   const [selectedOutletFilter, setSelectedOutletFilter] = useState<string>('all');
@@ -140,6 +145,45 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     return Object.values(prodMap).sort((a, b) => b.qty - a.qty).slice(0, 5);
   }, [filteredTransactions]);
 
+  // Current outlet label
+  const currentOutletName = selectedOutletFilter === 'all' 
+    ? 'Semua Cabang Toko' 
+    : (outlets.find(o => o.id === selectedOutletFilter)?.name || 'Cabang Terpilih');
+
+  const periodLabel = {
+    today: 'Hari Ini',
+    yesterday: 'Kemarin',
+    week: '7 Hari Terakhir',
+    month: 'Bulan Ini',
+    custom: `Rentang Kustom (${customStartDate} s/d ${customEndDate})`,
+  }[dateFilter];
+
+  const lowStockCount = useMemo(() => {
+    return products.filter(p => {
+      const matchOutlet = selectedOutletFilter === 'all' || p.outletId === selectedOutletFilter;
+      return matchOutlet && p.isActive && p.stock <= p.minStock;
+    }).length;
+  }, [products, selectedOutletFilter]);
+
+  const debtCount = useMemo(() => {
+    return filteredTransactions.filter(t => t.paymentMethod === 'debt').length;
+  }, [filteredTransactions]);
+
+  const financialSummaryData: FinancialSummaryData = useMemo(() => ({
+    period: periodLabel,
+    outlet: currentOutletName,
+    totalOmset: formatRupiah(totalOmset),
+    grossProfit: formatRupiah(grossProfit),
+    profitMargin: `${totalOmset > 0 ? Math.round((grossProfit / totalOmset) * 100) : 0}%`,
+    totalHPP: formatRupiah(totalHPP),
+    totalTransactions: totalTransactionCount,
+    averageBasket: formatRupiah(averageBasket),
+    paymentBreakdown,
+    topProducts,
+    lowStockCount,
+    debtCount,
+  }), [periodLabel, currentOutletName, totalOmset, grossProfit, totalHPP, totalTransactionCount, averageBasket, paymentBreakdown, topProducts, lowStockCount, debtCount]);
+
   // Export to CSV Function
   const handleExportCSV = () => {
     if (filteredTransactions.length === 0) {
@@ -218,7 +262,18 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => {
+              const el = document.getElementById('gemini-financial-chatbot');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-sky-500/20 transition cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>Tanya Gemini AI</span>
+          </button>
+
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs transition"
@@ -406,6 +461,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Gemini AI Financial Chatbot Section */}
+      <div id="gemini-financial-chatbot">
+        <FinancialChatbot financialData={financialSummaryData} />
       </div>
 
       {/* Detailed Transactions History Table */}

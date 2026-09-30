@@ -287,6 +287,7 @@ export default function App() {
             activeOutlet={activeOutlet}
             settings={settings}
             onViewReceipt={handleOpenReceipt}
+            products={products}
           />
         )}
 
