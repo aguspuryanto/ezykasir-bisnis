@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { StoreSettings, BankAccount } from '../types';
+import React, { useState, useEffect } from 'react';
+import { StoreSettings, BankAccount, Outlet, Product } from '../types';
+import { OutletView } from './OutletView';
 import { 
   Settings, 
   Store, 
@@ -17,6 +18,7 @@ import {
   Smartphone,
   ShieldCheck,
   Building,
+  Building2,
   QrCode,
   Wallet
 } from 'lucide-react';
@@ -27,6 +29,18 @@ interface SettingsViewProps {
   onResetData: () => void;
   onExportData: () => void;
   onImportData: (file: File) => void;
+  outlets?: Outlet[];
+  activeOutlet?: Outlet;
+  products?: Product[];
+  onSelectOutlet?: (outletId: string) => void;
+  onSaveOutlet?: (outlet: Outlet) => void;
+  onDeleteOutlet?: (outletId: string) => void;
+  onCopyProducts?: (
+    sourceOutletId: string, 
+    targetOutletId: string, 
+    options: { copyStock: boolean; overwriteExistingSku: boolean; customInitialStock?: number }
+  ) => { copiedCount: number; skippedCount: number };
+  initialTab?: 'store' | 'outlets' | 'payment' | 'tax' | 'loyalty' | 'receipt' | 'data';
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -35,10 +49,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onResetData,
   onExportData,
   onImportData,
+  outlets,
+  activeOutlet,
+  products,
+  onSelectOutlet,
+  onSaveOutlet,
+  onDeleteOutlet,
+  onCopyProducts,
+  initialTab = 'store',
 }) => {
   const [formData, setFormData] = useState<StoreSettings>({ ...settings });
-  const [activeTab, setActiveTab] = useState<'store' | 'payment' | 'tax' | 'loyalty' | 'receipt' | 'data'>('store');
+  const [activeTab, setActiveTab] = useState<'store' | 'outlets' | 'payment' | 'tax' | 'loyalty' | 'receipt' | 'data'>(initialTab);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // New Bank Account Form
   const [newBank, setNewBank] = useState('');
@@ -111,6 +139,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="w-full md:w-64 bg-slate-50/80 border-b md:border-b-0 md:border-r border-slate-200 p-3 sm:p-4 space-y-1">
           {[
             { id: 'store', label: 'Profil Toko', icon: Store },
+            { id: 'outlets', label: 'Cabang Toko', icon: Building2 },
             { id: 'payment', label: 'Metode Pembayaran', icon: CreditCard },
             { id: 'tax', label: 'Pajak & Layanan', icon: Percent },
             { id: 'loyalty', label: 'Program Loyalitas', icon: Sparkles },
@@ -137,7 +166,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* Content Area */}
-        <form onSubmit={handleSubmit} className="flex-1 p-5 sm:p-8 space-y-6">
+        {activeTab === 'outlets' ? (
+          <div className="flex-1 min-w-0 bg-slate-50 overflow-hidden flex flex-col">
+            {outlets && activeOutlet && onSelectOutlet && onSaveOutlet && onDeleteOutlet && onCopyProducts ? (
+              <OutletView
+                outlets={outlets}
+                activeOutlet={activeOutlet}
+                products={products || []}
+                onSelectOutlet={onSelectOutlet}
+                onSaveOutlet={onSaveOutlet}
+                onDeleteOutlet={onDeleteOutlet}
+                onCopyProducts={onCopyProducts}
+              />
+            ) : (
+              <div className="p-8 text-center text-slate-500">Memuat data cabang...</div>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex-1 p-5 sm:p-8 space-y-6">
           {/* TAB 1: PROFIL TOKO */}
           {activeTab === 'store' && (
             <div className="space-y-4">
@@ -690,6 +736,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

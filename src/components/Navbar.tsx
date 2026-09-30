@@ -21,6 +21,7 @@ interface NavbarProps {
   onSelectOutlet: (outletId: string) => void;
   products: Product[];
   onOpenLowStock: () => void;
+  onOpenOutletSettings?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -31,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectOutlet,
   products,
   onOpenLowStock,
+  onOpenOutletSettings,
 }) => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
@@ -56,7 +58,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'stock', label: 'Stok Produk', icon: Boxes },
     { id: 'customers', label: 'Pelanggan', icon: Users },
     { id: 'reports', label: 'Laporan', icon: BarChart3 },
-    { id: 'outlets', label: 'Cabang Toko', icon: Building2 },
     { id: 'settings', label: 'Pengaturan', icon: Settings },
   ];
 
@@ -125,7 +126,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <div className="px-2 pt-1 border-t border-slate-100">
                     <button
                       onClick={() => {
-                        setActiveTab('outlets');
+                        if (onOpenOutletSettings) {
+                          onOpenOutletSettings();
+                        } else {
+                          setActiveTab('settings');
+                        }
                         setDropdownOpen(false);
                       }}
                       className="w-full text-center py-1.5 text-xs text-sky-600 hover:text-sky-700 font-semibold"

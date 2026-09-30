@@ -17,7 +17,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     { id: 'stock', label: 'Stok', icon: Boxes },
     { id: 'customers', label: 'Pelanggan', icon: Users },
     { id: 'reports', label: 'Laporan', icon: BarChart3 },
-    { id: 'outlets', label: 'Cabang', icon: Building2 },
     { id: 'settings', label: 'Setelan', icon: Settings },
   ];
 

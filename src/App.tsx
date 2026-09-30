@@ -22,6 +22,7 @@ import { SettingsView } from './views/SettingsView';
 export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<string>('cashier');
+  const [settingsSubTab, setSettingsSubTab] = useState<'store' | 'outlets' | 'payment' | 'tax' | 'loyalty' | 'receipt' | 'data'>('store');
 
   // Core Data
   const [outlets, setOutlets] = useState<Outlet[]>(() => storage.getOutlets());
@@ -220,6 +221,12 @@ export default function App() {
     setActiveTab('stock');
   };
 
+  // Open Outlet Settings
+  const handleOpenOutletSettings = () => {
+    setSettingsSubTab('outlets');
+    setActiveTab('settings');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 pb-16 lg:pb-0">
       {/* Top Navigation */}
@@ -231,6 +238,7 @@ export default function App() {
         onSelectOutlet={handleSelectOutlet}
         products={products}
         onOpenLowStock={handleOpenLowStock}
+        onOpenOutletSettings={handleOpenOutletSettings}
       />
 
       {/* Main View Router */}
@@ -283,7 +291,12 @@ export default function App() {
         )}
 
         {activeTab === 'outlets' && (
-          <OutletView
+          <SettingsView
+            settings={settings}
+            onSaveSettings={handleSaveSettings}
+            onResetData={handleResetData}
+            onExportData={handleExportData}
+            onImportData={handleImportData}
             outlets={outlets}
             activeOutlet={activeOutlet}
             products={products}
@@ -291,6 +304,7 @@ export default function App() {
             onSaveOutlet={handleSaveOutlet}
             onDeleteOutlet={handleDeleteOutlet}
             onCopyProducts={handleCopyProducts}
+            initialTab="outlets"
           />
         )}
 
@@ -301,6 +315,14 @@ export default function App() {
             onResetData={handleResetData}
             onExportData={handleExportData}
             onImportData={handleImportData}
+            outlets={outlets}
+            activeOutlet={activeOutlet}
+            products={products}
+            onSelectOutlet={handleSelectOutlet}
+            onSaveOutlet={handleSaveOutlet}
+            onDeleteOutlet={handleDeleteOutlet}
+            onCopyProducts={handleCopyProducts}
+            initialTab={settingsSubTab}
           />
         )}
       </main>
