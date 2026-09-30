@@ -1,0 +1,6 @@
+{
+  "name": "KasirPro - Aplikasi Toko & Kasir Modern",
+  "description": "Aplikasi Toko dan Kasir (POS) pintar multi-cabang dengan dukungan multi-pembayaran (Cash, QRIS, Bank, E-Wallet), manajemen stok & produk, salin produk antar cabang, manajemen pelanggan & poin loyalitas, laporan keuangan komprehensif, ekspor CSV, dan dukungan Mobile Apps PWA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
